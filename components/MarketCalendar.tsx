@@ -2,7 +2,7 @@
 
 import Calendar from 'react-calendar';
 import { listDatesWithEntries, getEntry } from '@/lib/storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import 'react-calendar/dist/Calendar.css';
 
 interface MarketCalendarProps {
@@ -11,22 +11,33 @@ interface MarketCalendarProps {
 
 export function MarketCalendar({ onSelectDate }: MarketCalendarProps) {
   const [datesWithEntries, setDatesWithEntries] = useState<string[]>([]);
+  const [, forceUpdate] = useState({});
 
   useEffect(() => {
     setDatesWithEntries(listDatesWithEntries());
-    // タイルのテキストから「日」を削除
-    const timer = setTimeout(() => {
+  }, []);
+
+  useLayoutEffect(() => {
+    const cleanupDateText = () => {
       const tiles = document.querySelectorAll(
-        '.react-calendar__tile:not(.react-calendar__navigation button)'
+        '.react-calendar__month-view__days__day'
       );
       tiles.forEach((tile) => {
-        const text = tile.textContent?.trim();
-        if (text && text.endsWith('日')) {
-          tile.textContent = text.slice(0, -1);
+        if (tile.childNodes.length > 0) {
+          const textNode = Array.from(tile.childNodes).find(
+            (node) => node.nodeType === Node.TEXT_NODE
+          );
+          if (textNode && textNode.textContent?.includes('日')) {
+            const cleaned = textNode.textContent.replace('日', '');
+            textNode.textContent = cleaned;
+          }
         }
       });
-    }, 100);
-    return () => clearTimeout(timer);
+    };
+    cleanupDateText();
+    const observer = new MutationObserver(cleanupDateText);
+    observer.observe(document.body, { subtree: true, childList: true });
+    return () => observer.disconnect();
   }, []);
 
   const tileContent = ({ date }: { date: Date }) => {
