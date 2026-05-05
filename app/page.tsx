@@ -7,6 +7,7 @@ import { EntryModal } from '@/components/EntryModal';
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
@@ -26,7 +27,7 @@ export default function Home() {
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <MarketCalendar onSelectDate={handleSelectDate} />
+          <MarketCalendar key={refreshKey} onSelectDate={handleSelectDate} />
         </div>
       </div>
 
@@ -35,6 +36,7 @@ export default function Home() {
         date={selectedDate}
         onClose={() => setIsModalOpen(false)}
         onSaved={() => {
+          setRefreshKey((prev) => prev + 1);
           setIsModalOpen(false);
           setSelectedDate(null);
         }}
