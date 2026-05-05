@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -26,14 +26,17 @@ export function EntryModal({
 }: EntryModalProps) {
   const [entry, setEntry] = useState<DiaryEntry | null>(null);
 
-  const handleOpenChange = (open: boolean) => {
-    if (open && date) {
+  useEffect(() => {
+    if (isOpen && date) {
       const dateStr = date.toISOString().split('T')[0];
       const existing = getEntry(dateStr);
       setEntry(existing);
     } else {
       setEntry(null);
     }
+  }, [isOpen, date]);
+
+  const handleOpenChange = (open: boolean) => {
     if (!open) {
       onClose();
     }
