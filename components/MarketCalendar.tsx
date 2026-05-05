@@ -61,7 +61,7 @@ export function MarketCalendar({ onSelectDate }: MarketCalendarProps) {
         onClickDay={onSelectDate}
         tileContent={tileContent}
         className="react-calendar"
-        calendarType="US"
+        locale="en-US"
         formatShortWeekday={formatShortWeekday}
         formatDay={formatDay}
       />
