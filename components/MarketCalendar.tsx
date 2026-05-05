@@ -64,7 +64,7 @@ export function MarketCalendar({ onSelectDate }: MarketCalendarProps) {
         {Array.from({ length: dotsCount }).map((_, i) => (
           <div
             key={i}
-            className="w-1.5 h-1.5 bg-blue-500 rounded-full"
+            className="w-1.5 h-1.5 bg-orange-500 rounded-full"
           />
         ))}
       </div>
