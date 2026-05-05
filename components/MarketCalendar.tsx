@@ -14,15 +14,20 @@ export function MarketCalendar({ onSelectDate }: MarketCalendarProps) {
 
   useEffect(() => {
     setDatesWithEntries(listDatesWithEntries());
+    // タイルのテキストから「日」を削除
+    const timer = setTimeout(() => {
+      const tiles = document.querySelectorAll(
+        '.react-calendar__tile:not(.react-calendar__navigation button)'
+      );
+      tiles.forEach((tile) => {
+        const text = tile.textContent?.trim();
+        if (text && text.endsWith('日')) {
+          tile.textContent = text.slice(0, -1);
+        }
+      });
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
-
-  const formatShortWeekday = (_: string, date: Date) => {
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    return weekdays[date.getDay()];
-  };
-
-  const formatDay = (_: string, date: Date) =>
-    date.getDate().toString();
 
   const tileContent = ({ date }: { date: Date }) => {
     const dateStr = date.toISOString().split('T')[0];
@@ -62,8 +67,6 @@ export function MarketCalendar({ onSelectDate }: MarketCalendarProps) {
         tileContent={tileContent}
         className="react-calendar"
         locale="en-US"
-        formatShortWeekday={formatShortWeekday}
-        formatDay={formatDay}
       />
     </div>
   );
