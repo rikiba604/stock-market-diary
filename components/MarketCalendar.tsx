@@ -1,7 +1,7 @@
 'use client';
 
 import Calendar from 'react-calendar';
-import { listDatesWithEntries } from '@/lib/storage';
+import { listDatesWithEntries, getEntry } from '@/lib/storage';
 import { useEffect, useState } from 'react';
 import 'react-calendar/dist/Calendar.css';
 
@@ -16,14 +16,43 @@ export function MarketCalendar({ onSelectDate }: MarketCalendarProps) {
     setDatesWithEntries(listDatesWithEntries());
   }, []);
 
+  const formatShortWeekday = (_: string, date: Date) => {
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    return weekdays[date.getDay()];
+  };
+
+  const formatDay = (_: string, date: Date) =>
+    date.getDate().toString();
+
   const tileContent = ({ date }: { date: Date }) => {
     const dateStr = date.toISOString().split('T')[0];
-    if (datesWithEntries.includes(dateStr)) {
-      return <div className="flex justify-center mt-1">
-        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-      </div>;
-    }
-    return null;
+    const entry = getEntry(dateStr);
+
+    if (!entry) return null;
+
+    const hasContent =
+      entry.marketNews.trim() ||
+      entry.marketTopics.trim() ||
+      entry.investmentMemo.trim();
+
+    if (!hasContent) return null;
+
+    const dotsCount = [
+      entry.marketNews.trim(),
+      entry.marketTopics.trim(),
+      entry.investmentMemo.trim(),
+    ].filter(Boolean).length;
+
+    return (
+      <div className="flex justify-center gap-0.5 mt-1">
+        {Array.from({ length: dotsCount }).map((_, i) => (
+          <div
+            key={i}
+            className="w-1.5 h-1.5 bg-blue-500 rounded-full"
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -32,6 +61,9 @@ export function MarketCalendar({ onSelectDate }: MarketCalendarProps) {
         onClickDay={onSelectDate}
         tileContent={tileContent}
         className="react-calendar"
+        calendarType="US"
+        formatShortWeekday={formatShortWeekday}
+        formatDay={formatDay}
       />
     </div>
   );
