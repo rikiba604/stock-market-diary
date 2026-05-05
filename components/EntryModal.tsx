@@ -34,7 +34,7 @@ export function EntryModal({
     } else {
       setEntry(null);
     }
-  }, [isOpen, date]);
+  }, [isOpen]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
