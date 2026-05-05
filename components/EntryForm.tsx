@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DiaryEntry } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,13 +19,21 @@ export function EntryForm({
   onSave,
   onClose,
 }: EntryFormProps) {
-  const [marketNews, setMarketNews] = useState(initialEntry?.marketNews || '');
-  const [marketTopics, setMarketTopics] = useState(
-    initialEntry?.marketTopics || ''
-  );
-  const [investmentMemo, setInvestmentMemo] = useState(
-    initialEntry?.investmentMemo || ''
-  );
+  const [marketNews, setMarketNews] = useState('');
+  const [marketTopics, setMarketTopics] = useState('');
+  const [investmentMemo, setInvestmentMemo] = useState('');
+
+  useEffect(() => {
+    if (initialEntry) {
+      setMarketNews(initialEntry.marketNews || '');
+      setMarketTopics(initialEntry.marketTopics || '');
+      setInvestmentMemo(initialEntry.investmentMemo || '');
+    } else {
+      setMarketNews('');
+      setMarketTopics('');
+      setInvestmentMemo('');
+    }
+  }, [initialEntry]);
 
   const handleSave = () => {
     const entry: DiaryEntry = {
