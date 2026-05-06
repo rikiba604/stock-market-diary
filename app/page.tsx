@@ -1,13 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MarketCalendar } from '@/components/MarketCalendar';
 import { EntryModal } from '@/components/EntryModal';
+import { SearchBar } from '@/components/SearchBar';
+import { storage } from '@/lib/storage';
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    // マイグレーション: localStorage → Supabase
+    const migrate = async () => {
+      try {
+        await storage.migrateFromLocalStorage();
+      } catch (error) {
+        console.error('Migration failed:', error);
+      }
+    };
+    migrate();
+  }, []);
 
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
@@ -27,7 +41,8 @@ export default function Home() {
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <MarketCalendar key={refreshKey} onSelectDate={handleSelectDate} />
+          <SearchBar onSelectDate={handleSelectDate} />
+          <MarketCalendar onSelectDate={handleSelectDate} refreshTrigger={refreshKey} />
         </div>
       </div>
 

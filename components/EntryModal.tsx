@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { DiaryEntry } from '@/lib/types';
-import { getEntry, saveEntry } from '@/lib/storage';
+import { storage } from '@/lib/storage';
 import { EntryForm } from './EntryForm';
 
 interface EntryModalProps {
@@ -25,16 +25,22 @@ export function EntryModal({
   onSaved,
 }: EntryModalProps) {
   const [entry, setEntry] = useState<DiaryEntry | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && date) {
-      const dateStr = date.toISOString().split('T')[0];
-      const existing = getEntry(dateStr);
-      setEntry(existing);
+      const loadEntry = async () => {
+        setLoading(true);
+        const dateStr = date.toISOString().split('T')[0];
+        const existing = await storage.getEntry(dateStr);
+        setEntry(existing);
+        setLoading(false);
+      };
+      loadEntry();
     } else {
       setEntry(null);
     }
-  }, [isOpen]);
+  }, [isOpen, date]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -42,8 +48,8 @@ export function EntryModal({
     }
   };
 
-  const handleSave = (entry: DiaryEntry) => {
-    saveEntry(entry);
+  const handleSave = async (entry: DiaryEntry) => {
+    await storage.saveEntry(entry);
     onSaved?.();
   };
 
@@ -63,12 +69,16 @@ export function EntryModal({
         <DialogHeader>
           <DialogTitle>{displayDate}</DialogTitle>
         </DialogHeader>
-        <EntryForm
-          date={dateStr}
-          initialEntry={entry}
-          onSave={handleSave}
-          onClose={onClose}
-        />
+        {loading ? (
+          <div className="py-8 text-center text-gray-500">読み込み中...</div>
+        ) : (
+          <EntryForm
+            date={dateStr}
+            initialEntry={entry}
+            onSave={handleSave}
+            onClose={onClose}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

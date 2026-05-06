@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 interface EntryFormProps {
   date: string;
   initialEntry: DiaryEntry | null;
-  onSave: (entry: DiaryEntry) => void;
+  onSave: (entry: DiaryEntry) => Promise<void>;
   onClose: () => void;
 }
 
@@ -22,6 +22,7 @@ export function EntryForm({
   const [marketNews, setMarketNews] = useState('');
   const [marketTopics, setMarketTopics] = useState('');
   const [investmentMemo, setInvestmentMemo] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (initialEntry) {
@@ -35,7 +36,8 @@ export function EntryForm({
     }
   }, [initialEntry]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
     const entry: DiaryEntry = {
       date,
       marketNews,
@@ -43,7 +45,8 @@ export function EntryForm({
       investmentMemo,
       updatedAt: new Date().toISOString(),
     };
-    onSave(entry);
+    await onSave(entry);
+    setSaving(false);
     onClose();
   };
 
@@ -83,10 +86,12 @@ export function EntryForm({
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" onClick={onClose} disabled={saving}>
           キャンセル
         </Button>
-        <Button onClick={handleSave}>保存</Button>
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? '保存中...' : '保存'}
+        </Button>
       </div>
     </div>
   );
